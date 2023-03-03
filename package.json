@@ -1,0 +1,25 @@
+{
+  "name": "amazon_seller_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sp-api-sdk/sellers-api-v1": "^1.9.10",
+    "amazon-sp-api": "^0.8.1",
+    "aws-sdk": "^2.1318.0",
+    "axios": "^1.3.4",
+    "body-parser": "^1.20.1",
+    "cookie-session": "^2.0.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "nodemon": "^2.0.20",
+    "path": "^0.12.7"
+  }
+}
