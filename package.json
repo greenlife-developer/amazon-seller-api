@@ -1,19 +1,33 @@
 {
-  "name": "amazon_seller_api",
-  "version": "1.0.0",
-  "description": "",
+  "name": "amazon-sp-api",
+  "version": "0.8.2",
+  "description": "Amazon Selling Partner API client",
   "main": "index.js",
-  "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "directories": {
+    "lib": "./lib/"
   },
-  "engines": {
-    "node": "16.17.1"
-  },
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "amazon",
+    "sellingpartner",
+    "sp",
+    "sellercentral",
+    "amazon sellingpartner api",
+    "amazon sp api",
+    "selling partner",
+    "amazon sp api client",
+    "amazon selling partner",
+    "amazon selling partner api",
+    "mws",
+    "amazon mws"
+  ],
+  "author": "Jens Lübberstedt <jens@amz.tools>",
+  "license": "MIT",
   "dependencies": {
+    "crypto-js": "^4.1.1",
+    "csvtojson": "^2.0.10",
+    "fast-xml-parser": "^4.0.9",
+    "iconv-lite": "^0.6.3",
+    "qs": "^6.11.0",
     "@sp-api-sdk/sellers-api-v1": "^1.9.10",
     "amazon-sp-api": "^0.8.1",
     "aws-sdk": "^2.1318.0",
@@ -23,8 +37,26 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "lightrun": "^1.10.0",
     "moment": "^2.29.4",
     "nodemon": "^2.0.20",
     "path": "^0.12.7"
-  }
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.2",
+    "chai": "^4.3.6",
+    "dotenv": "^16.0.1",
+    "mocha": "^10.0.0",
+    "moment": "^2.29.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:amz-tools/amazon-sp-api.git"
+  },
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "homepage": "https://amz.tools",
+  "types": "./lib/typings/index.d.ts"
 }
