@@ -6,6 +6,7 @@ const express = require("express");
 const path = require("path");
 const axios = require("axios");
 const aws4 = require('aws4');
+const moment = require('moment');
 const os = require('os');
 const SellingPartner = require("./index")
 
@@ -197,14 +198,12 @@ app.get("/catalogue-item", async (req, res) => {
                 asin: asin
             },
             query: {
-                marketplaceIds: "A2Q3Y263D00KWC"
+                marketplaceIds: [marketplaceId],
+                includedData: ['identifiers', 'images', 'productTypes', 'salesRanks', 'summaries', 'variations']
             },
             options: {
-                "v0": {},
-                "2020-12-01": {},
-                "2022-04-01": {}
+                version: '2020-12-01'
             }
-
         });
 
         res.json({
@@ -220,19 +219,125 @@ app.get("/catalogue-item", async (req, res) => {
 app.get("/pricing", async (req, res) => {
     try {
 
-        let response = await sellingPartner.callAPI({
-            operation: 'getMyFeesEstimateForSKU',
-            endpoint: 'productFees',
+        let getPricing = await sellingPartner.callAPI({
+            operation: 'getPricing',
+            endpoint: "productPricing",
+            query: {
+                MarketplaceId: marketplaceId,
+                Asins: asin,
+                ItemType: 'Asin'
+            }
+        });
+
+        let competitivePricing = await sellingPartner.callAPI({
+            operation: 'getCompetitivePricing',
+            endpoint: "productPricing",
+            query: {
+                MarketplaceId: marketplaceId,
+                Asins: asin,
+                ItemType: 'Asin'
+            }
+        });
+
+        let offers = await sellingPartner.callAPI({
+            operation: 'getItemOffers',
+            endpoint: "productPricing",
             path: {
-                SellerSKU: sku
+                Asin: asin
+            },
+            query: {
+                MarketplaceId: marketplaceId,
+                ItemCondition: 'New'
+            }
+        });
+
+        res.json({
+            "payload": {
+                "getPricing": getPricing,
+                "competitivePricing": competitivePricing,
+                "itemOffers": offers
+            }
+        })
+    } catch (e) {
+        console.log(e)
+    }
+
+})
+
+app.get("/inventory", async (req, res) => {
+    try {
+
+        let response = await sellingPartner.callAPI({
+            operation: 'getInventorySummaries',
+            endpoint: "fbaInventory",
+            query: {
+                details: true,
+                sellerSkus: [sku],
+                granularityType: 'Marketplace',
+                granularityId: marketplaceId,
+                marketplaceIds: [marketplaceId]
+            }
+        });
+
+        res.json({
+            "payload": response
+        })
+    } catch (e) {
+        console.log(e)
+    }
+
+})
+
+
+app.get("/pull-orders/:orderId", async (req, res) => {
+    const orderId = req.params.orderId
+    try {
+        let orders = await sellingPartner.callAPI({
+            operation: 'getOrders',
+            endpoint: 'orders',
+            query: {
+                MarketplaceIds: marketplaceId,
+                CreatedBefore: moment().startOf('day').toISOString(),
+                CreatedAfter: moment().startOf('day').subtract(1, 'month').toISOString()
+            }
+        });
+
+        let order = await sellingPartner.callAPI({
+            operation: 'getOrderBuyerInfo',
+            endpoint: "order",
+            path: {
+                orderId: orderId
+            }
+        });
+
+        res.json({
+            "payload": {
+                "orders": orders,
+                "order": order
+            }
+        })
+    } catch (e) {
+        console.log(e)
+    }
+
+})
+
+app.get("/product-fees-for-asin", async (req, res) => {
+    try {
+
+        let response = await sellingPartner.callAPI({
+            operation: 'getMyFeesEstimateForASIN',
+            endpoint: "productFees",
+            path: {
+                Asin: asin
             },
             body: {
                 FeesEstimateRequest: {
                     MarketplaceId: marketplaceId,
-                    Identifier: sku,
+                    Identifier: asin,
                     PriceToEstimateFees: {
                         ListingPrice: {
-                            CurrencyCode: 'USD',
+                            CurrencyCode: "USD",
                             Amount: 19.99
                         }
                     }
@@ -249,32 +354,64 @@ app.get("/pricing", async (req, res) => {
 
 })
 
-
-app.get("/item-offers", async (req, res) => {
+app.get("/messaging/:orderId", async (req, res) => {
+    const orderId = req.params.orderId
     try {
-
         let response = await sellingPartner.callAPI({
-            operation: 'getMyFeesEstimateForSKU',
-            endpoint: 'productFees',
+            operation: 'getMessagingActionsForOrder',
+            endpoint: "messaging",
             path: {
-                SellerSKU: sku
+                amazonOrderId: orderId
             },
-            body: {
-                FeesEstimateRequest: {
-                    MarketplaceId: marketplaceId,
-                    Identifier: sku,
-                    PriceToEstimateFees: {
-                        ListingPrice: {
-                            CurrencyCode: 'USD',
-                            Amount: 19.99
-                        }
-                    }
-                }
+            query: {
+                marketplaceIds: marketplaceId
             }
         });
 
+        let orderAttributes = await sellingPartner.callAPI({
+            operation: 'GetAttributes',
+            endpoint: "messaging",
+            path: {
+                amazonOrderId: orderId
+            },
+            query: {
+                marketplaceIds: marketplaceId
+            }
+        })
+
         res.json({
-            "payload": response
+            "payload": {
+                "messageType": response,
+                "messageAttribute": orderAttributes
+            }
+        })
+    } catch (e) {
+        console.log(e)
+    }
+
+})
+
+
+app.get("/finances", async (req, res) => {
+    try {
+        let response = await sellingPartner.callAPI({
+            operation: 'listFinancialEventGroups',
+            endpoint: "finances",
+            query: {
+                FinancialEventGroupStartedBefore: moment().startOf('day').toISOString(),
+                FinancialEventGroupStartedAfter: moment().startOf('day').subtract(2, 'months').toISOString()
+            }
+        });
+
+        // let orderAttributes = await sellingPartner.callAPI({
+
+        // })
+
+        res.json({
+            "payload": {
+                "messageType": response,
+                // "messageAttribute": orderAttributes
+            }
         })
     } catch (e) {
         console.log(e)
