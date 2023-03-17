@@ -1,11 +1,5 @@
-require("dotenv").config({
-    path: "./env_variables/.env",
-});
-
 const express = require("express");
-const path = require("path");
 const axios = require("axios");
-const aws4 = require('aws4');
 const moment = require('moment');
 const os = require('os');
 const SellingPartner = require("./index")
@@ -15,14 +9,6 @@ const SellingPartner = require("./index")
 // require('lightrun').start({
 //     lightrunSecret: '2972e328-f03d-4400-8d67-bd6c8a6cb83e',
 // });
-
-const crypto = require('crypto');
-// const {aws4Interceptor} = require("aws4-axios");
-const { HttpRequest } = require("@aws-sdk/protocol-http");
-const { defaultProvider } = require("@aws-sdk/credential-provider-node");
-const { SignatureV4 } = require("@aws-sdk/signature-v4");
-const { NodeHttpHandler } = require("@aws-sdk/node-http-handler");
-const { Sha256 } = require("@aws-crypto/sha256-browser");
 
 const app = express();
 
@@ -71,12 +57,9 @@ app.use(
 
 const asin = "B09CHK13SK";
 const refresh_token = "Atzr|IwEBIH5M6uib0S46ECxrIMtOUS0XDlKqzThWc9OjQABlUVOBkn2eRpKhHODKxmzPDeLZJ9zqDzf4Q3mtTAUGZTd2Bih9vY1gPkmD5ZYZwVDsL8tAYvlCtAZjlAJ7DnaMbJGQk6GBaxBodfEqJkVr_hwzZhrYLVrVMSCJfF-GZnvRc_yWo_WCPqxuFOY_dV2sxwY318mE37_j00EHdNly2lZO-IbniGsT8psNbBfjbHFqvUiBYfgTocPtRe12_F9dwwFfHnjVGkg33To7LjQc-oJRhgIuwFFUbyvOxCHwsZIAls0ajriZi_bDM3pW5UAH6AlIPPs"
-const baseUrl = "https://sellingpartnerapi-na.amazon.com";
 const marketplaceId = "A2Q3Y263D00KWC";
 const client_id = "amzn1.application-oa2-client.fe42ec2412364a04b0e7ac9c29b8c614";
 const client_secret = "70bf4e66166fc7d120d02cfe5536fa891b5793c74d344a69c4acd18062f2c6dd";
-const awsRegion = "us-east-1";
-const sellerId = "A12ZW5F2C6LX3M";
 const sku = "27-01-22 -AA - teste";
 
 // const AWS_SECRET_KEY = '/H3UTQGVVIgLTlCriFHiF1WWvhbq5lsGMuyY/D33';
@@ -92,47 +75,17 @@ async function accessToken() {
     return data
 }
 
-const req_params = {
-    // operation: '<OPERATION_TO_CALL>', // Optional: The operation you want to request. May also include endpoint as shorthand dot notation. Required if "api_path" is not defined.
-    // endpoint: '<ENDPOINT_OF_OPERATION>', // Optional: The endpoint of the operation. Required if endpoint is not part of operation as shorthand dot notation and if "api_path" is not defined.
-    path: { // Optional: The input paramaters added to the path of the operation.
-
-    },
-    query: { // Optional: The input paramaters added to the query string of the operation.
-
-    },
-    body: { // Optional: The input paramaters added to the body of the operation.
-
-    },
-    // api_path: '<FULL_PATH_OF_OPERATION>', // Optional: The full path of an operation. Required if "operation" is not defined.
-    method: 'GET', // The HTTP method to use. Required only if "api_path" is defined. Must be one of: "GET", "POST", "PUT", "DELETE" or "PATCH".
-    restricted_data_token: '<RESTRICTED_DATA_TOKEN>', // Optional: A token received from a "createRestrictedDataToken" operation for receiving PII from a restricted operation.
-    options: {
-        version: '<OPERATION_ENDPOINT_VERSION>', // Optional: The endpoint’s version that should be used when calling the operation. Will be preferred over an "endpoints_versions" setting.
-        restore_rate: '<RESTORE_RATE_IN_SECONDS>', // Optional: The restore rate (in seconds) that should be used when calling the operation. Will be preferred over the default restore rate of the operation.
-        raw_result: false // Whether or not the client should return the "raw" result, which will include the raw body, buffer chunks, statuscode and headers of the result.
-    }
-}
-
-// accessToken()
-
 const config = {
     region: 'na', // Required: The region to use for the SP-API endpoints. Must be one of: "eu", "na" or "fe"
     refresh_token: "Atzr|IwEBIH5M6uib0S46ECxrIMtOUS0XDlKqzThWc9OjQABlUVOBkn2eRpKhHODKxmzPDeLZJ9zqDzf4Q3mtTAUGZTd2Bih9vY1gPkmD5ZYZwVDsL8tAYvlCtAZjlAJ7DnaMbJGQk6GBaxBodfEqJkVr_hwzZhrYLVrVMSCJfF-GZnvRc_yWo_WCPqxuFOY_dV2sxwY318mE37_j00EHdNly2lZO-IbniGsT8psNbBfjbHFqvUiBYfgTocPtRe12_F9dwwFfHnjVGkg33To7LjQc-oJRhgIuwFFUbyvOxCHwsZIAls0ajriZi_bDM3pW5UAH6AlIPPs", // Optional: The refresh token of your app user. Required if "only_grantless_operations" option is set to "false".
-    // access_token: 'Atza|IwEBINgX28iJnbPMohHtjWUO9FDS2iYENl_N3UFRzuwZdQmuHqqX8ahMbFz5jPjaLQAgTQSwSO1jhfsRzfO5-mTacEe3UToPVn8INv1eJ-jQf1PbCotIPpTSOWbtPm4DT-dUKVn0MxS12XnPOpx0qFIZ0WgFJ2uRp_TkBTHF_5D37aJ0Msr9U28dx04nBe0IJaNSTaTReoMVy20KbrvATthyw1vOgeGpUiQo5wK7oFKk5IbCFMGP9zinnwGmayoj7axyit9wnbx9BVKAzjZ-nviRo2vU0aXmlVw0CxGMWsJ_1_sAhAm-DAnOVo9SQpXUdIBy9BbeBkkzYTJ5yMHUpbS2Yo_epxKIih14hgBdC_W6PJVAhA', // Optional: The temporary access token requested with the refresh token of the app user.
-    // role_credentials: { // Optional: The temporary role credentials for the sellingpartner api role of the iam user.
-    //     id: '<TEMPORARY_ROLE_ACCESS_ID>', 
-    //     secret: '<TEMPORARY_ROLE_ACCESS_SECRET>',
-    //     security_token: '<TEMPORARY_ROLE_SECURITY_TOKEN>'
-    // },
     endpoints_versions: { // Optional: Defines the version to use for an endpoint as key/value pairs, i.e. "reports":"2021-06-30".
         "reports": "2021-06-30"
     },
     credentials: { // Optional: The app client and aws user credentials. Should only be used if you have no means of using environment vars or credentials file!
-        SELLING_PARTNER_APP_CLIENT_ID: process.env.SELLING_PARTNER_APP_CLIENT_ID,
-        SELLING_PARTNER_APP_CLIENT_SECRET: process.env.SELLING_PARTNER_APP_CLIENT_SECRET,
-        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-        AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+        SELLING_PARTNER_APP_CLIENT_ID: "amzn1.application-oa2-client.fe42ec2412364a04b0e7ac9c29b8c614",
+        SELLING_PARTNER_APP_CLIENT_SECRET: "70bf4e66166fc7d120d02cfe5536fa891b5793c74d344a69c4acd18062f2c6dd",
+        AWS_ACCESS_KEY_ID: "AKIA6KWVU7YBYVVUHTT5",
+        AWS_SECRET_ACCESS_KEY: "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",
         AWS_SELLING_PARTNER_ROLE: 'arn:aws:iam::985069321731:role/funcao_seller'
     },
     options: {
@@ -304,7 +257,7 @@ app.get("/pull-orders/:orderId", async (req, res) => {
 
         let order = await sellingPartner.callAPI({
             operation: 'getOrderBuyerInfo',
-            endpoint: "order",
+            endpoint: "orders",
             path: {
                 orderId: orderId
             }
