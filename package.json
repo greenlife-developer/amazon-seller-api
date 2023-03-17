@@ -35,7 +35,6 @@
     "body-parser": "^1.20.1",
     "cookie-session": "^2.0.0",
     "crypto": "^1.0.1",
-    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "lightrun": "^1.10.0",
     "moment": "^2.29.4",
