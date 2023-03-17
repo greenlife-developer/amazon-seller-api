@@ -1,27 +1,26 @@
 {
-  "name": "amazon-sp-api",
-  "version": "0.8.2",
-  "description": "Amazon Selling Partner API client",
-  "main": "index.js",
-  "directories": {
-    "lib": "./lib/"
+  "name": "amazon-seller-api",
+  "version": "1.0.0",
+  "description": "Using the amazon seller api github repository",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app",
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "amazon",
-    "sellingpartner",
-    "sp",
-    "sellercentral",
-    "amazon sellingpartner api",
-    "amazon sp api",
-    "selling partner",
-    "amazon sp api client",
-    "amazon selling partner",
-    "amazon selling partner api",
-    "mws",
-    "amazon mws"
-  ],
-  "author": "Jens Lübberstedt <jens@amz.tools>",
-  "license": "MIT",
+  "engines": {
+    "node": "16.17.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/greenlife-developer/amazon-seller-api.git"
+  },
+  "author": "Afolabi Opeyemi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/greenlife-developer/amazon-seller-api/issues"
+  },
+  "homepage": "https://github.com/greenlife-developer/amazon-seller-api#readme",
   "dependencies": {
     "crypto-js": "^4.1.1",
     "csvtojson": "^2.0.10",
@@ -47,15 +46,5 @@
     "dotenv": "^16.0.1",
     "mocha": "^10.0.0",
     "moment": "^2.29.4"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:amz-tools/amazon-sp-api.git"
-  },
-  "scripts": {
-    "dev": "nodemon app.js",
-    "start": "node app.js"
-  },
-  "homepage": "https://amz.tools",
-  "types": "./lib/typings/index.d.ts"
+  }
 }
